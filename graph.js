@@ -20,10 +20,24 @@ const arcPath = d3.arc()
 
 const color = d3.scaleOrdinal(d3['schemeSet3'])
 
-/// Update function
+// Legend setup
+const legendGroup = svg.append('g')
+  .attr('transform', `translate(${dimensionsOfChart.width + 40}, 10)`)
+
+const legend = d3.legendColor()
+  .shape('circle')
+  .shapePadding(10)
+  .scale(color)
+
+// Update function
 const update = data => {
   // Update color scale domain
   color.domain(data.map(item => item.name))
+
+  // Update call legend
+  legendGroup.call(legend)
+  legendGroup.selectAll('text')
+    .attr('fill', '#fff')
 
   // Join enhanced (pie) data to path elements
   const paths = graph.selectAll('path')

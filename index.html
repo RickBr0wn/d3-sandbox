@@ -66,19 +66,21 @@
       storageBucket: "d3-firebase-udemy.appspot.com",
       messagingSenderId: "382564317984"
     }
-
+    
     firebase.initializeApp(config)
     const database = firebase.firestore()
     const settings = { timestampsInSnapshots: true }
     database.settings(settings)
-  </script>
+    </script>
 
-  <!-- Compiled and minified JavaScript -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <!-- d3 -->
-  <script src="https://d3js.org/d3.v5.js"></script>
-  <!-- Javascript files -->
-  <script src="form.js"></script>
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<!-- d3 -->
+<script src="https://d3js.org/d3.v5.js"></script>
+<!-- legend --> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.js"></script>
+<!-- Javascript files -->
+<script src="form.js"></script>
   <script src="graph.js"></script>
 </body>
 </html>
