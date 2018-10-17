@@ -30,7 +30,10 @@ const update = data => {
     .data(pie(data))
 
   // Handle the exit selection
-  paths.exit().remove()
+  paths.exit()
+    .transition().duration(750)
+    .attrTween('d', arcTweenExit)
+    .remove()
 
   // Handle the current DOM path updates
   paths.attr('d', arcPath)
@@ -41,6 +44,7 @@ const update = data => {
       .attr('stroke', '#fff')
       .attr('stroke-width', 3)
       .attr('fill', data => color(data.data.name))
+      .each(function(data) { this._current = data })
       .transition().duration(750)
         .attrTween('d', arcTweenEnter)
 }
@@ -77,4 +81,17 @@ const arcTweenEnter = data => {
     return arcPath(data)
   }
 }
+
+const arcTweenExit = data => {
+  let interpolation = d3.interpolate(data.startAngle, data.endAngle-0.1)
+
+  return function(transition) {
+    data.startAngle = interpolation(transition)
+    return arcPath(data)
+  }
+}
+
+// Use function keyword to allow use of 'this'
+function arcTweenUpdate(data) {
   
+}
