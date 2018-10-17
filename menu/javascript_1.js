@@ -97,11 +97,14 @@ const update = data => {
   // Append the 'enter selection' to the DOM
   rects.enter()
     .append('rect')
-    .attr('width', xAxisScaled.bandwidth)
-    .attr('height', data => graphHeight - yAxisScaled(data.orders))
-    .attr('fill', 'orange')
-    .attr('x', data => xAxisScaled(data.name))
-    .attr('y', data => yAxisScaled(data.orders))
+      .attr('width', xAxisScaled.bandwidth)
+      .attr('height', 0)
+      .attr('fill', 'orange')
+      .attr('x', data => xAxisScaled(data.name))
+      .attr('y', graphHeight)
+      .transition().duration(500)
+        .attr('y', data => yAxisScaled(data.orders))
+        .attr('height', data => graphHeight - yAxisScaled(data.orders))
 
   // Show the x & y axis
   xAxisGroup.call(xAxis)
