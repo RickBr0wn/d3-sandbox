@@ -37,6 +37,8 @@ const update = data => {
 
   // Handle the current DOM path updates
   paths.attr('d', arcPath)
+    .transition().duration(750)
+    .attrTween('d', arcTweenUpdate)
 
   paths.enter()
     .append('path')
@@ -93,5 +95,13 @@ const arcTweenExit = data => {
 
 // Use function keyword to allow use of 'this'
 function arcTweenUpdate(data) {
-  
+  /// Interpolate between the two objects
+  let interpolation = d3.interpolate(this._current, data)
+
+  // Update the current prop with the new updated data
+  this._current = interpolation(1)
+
+  return function(transition) {
+    return arcPath(interpolation(transition))  
+  }
 }
