@@ -29,6 +29,18 @@ const legend = d3.legendColor()
   .shapePadding(10)
   .scale(color)
 
+// Tooltip setup
+const tip = d3.tip()
+  .attr('class', 'tip card')
+  .html(data => {
+    let content = `<div class="name">${data.data.name}</div>`
+    content += `<div class="cost">${data.data.cost}</div>`
+    content += `<div class="delete">Click slice to delete</div>`
+    return content
+  })
+
+graph.call(tip)
+
 // Update function
 const update = data => {
   // Update color scale domain
@@ -67,8 +79,14 @@ const update = data => {
   
   // Add event listners
   graph.selectAll('path')
-  .on('mouseover', handleMouseOver)
-  .on('mouseout', handleMouseOut)
+  .on('mouseover', (data, index, array) => {
+    handleMouseOver(data, index, array)
+    tip.show(data, array[index])
+  })
+  .on('mouseout', (data, index, array) => {
+    handleMouseOut(data, index, array)
+    tip.hide(data, array[index])
+  })
   .on('click', handleClick)
 }
 
