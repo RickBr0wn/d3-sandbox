@@ -33,36 +33,43 @@ const legend = d3.legendColor()
 const update = data => {
   // Update color scale domain
   color.domain(data.map(item => item.name))
-
+  
   // Update call legend
   legendGroup.call(legend)
   legendGroup.selectAll('text')
-    .attr('fill', '#fff')
-
+  .attr('fill', '#fff')
+  
   // Join enhanced (pie) data to path elements
   const paths = graph.selectAll('path')
-    .data(pie(data))
-
+  .data(pie(data))
+  
   // Handle the exit selection
   paths.exit()
-    .transition().duration(750)
-    .attrTween('d', arcTweenExit)
-    .remove()
-
+  .transition().duration(750)
+  .attrTween('d', arcTweenExit)
+  .remove()
+  
   // Handle the current DOM path updates
   paths.attr('d', arcPath)
-    .transition().duration(750)
-    .attrTween('d', arcTweenUpdate)
-
+  .transition().duration(750)
+  .attrTween('d', arcTweenUpdate)
+  
+  // the enter selection
   paths.enter()
-    .append('path')
-      .attr('class', 'arc')
-      .attr('stroke', '#fff')
-      .attr('stroke-width', 3)
-      .attr('fill', data => color(data.data.name))
-      .each(function(data) { this._current = data })
-      .transition().duration(750)
-        .attrTween('d', arcTweenEnter)
+  .append('path')
+  .attr('class', 'arc')
+  .attr('stroke', '#fff')
+  .attr('stroke-width', 3)
+  .attr('fill', data => color(data.data.name))
+  .each(function(data) { this._current = data })
+  .transition().duration(750)
+  .attrTween('d', arcTweenEnter)
+  
+  // Add event listners
+  graph.selectAll('path')
+  .on('mouseover', handleMouseOver)
+  .on('mouseout', handleMouseOut)
+  .on('click', handleClick)
 }
 
 // Data array and firestore
@@ -73,17 +80,17 @@ database.collection('expenses').onSnapshot(res => {
     const doc = { ...change.doc.data(), id: change.doc.id }
     switch(change.type) {
       case 'added':
-        data.push(doc)
-        break
+      data.push(doc)
+      break
       case 'modified':
-        const index = data.findIndex(item => item.id == doc.id)
-        data[index] = doc
-        break
+      const index = data.findIndex(item => item.id == doc.id)
+      data[index] = doc
+      break
       case 'removed':
-        data = data.filter(item => item.id !== doc.id)
-        break
+      data = data.filter(item => item.id !== doc.id)
+      break
       default: 
-        break
+      break
     }
   })
   update(data)
@@ -91,7 +98,7 @@ database.collection('expenses').onSnapshot(res => {
 
 const arcTweenEnter = data => {
   let interpolation = d3.interpolate(data.endAngle-0.1, data.startAngle)
-
+  
   return function(transition) {
     data.startAngle = interpolation(transition)
     return arcPath(data)
@@ -100,7 +107,7 @@ const arcTweenEnter = data => {
 
 const arcTweenExit = data => {
   let interpolation = d3.interpolate(data.startAngle, data.endAngle-0.1)
-
+  
   return function(transition) {
     data.startAngle = interpolation(transition)
     return arcPath(data)
@@ -111,11 +118,29 @@ const arcTweenExit = data => {
 function arcTweenUpdate(data) {
   /// Interpolate between the two objects
   let interpolation = d3.interpolate(this._current, data)
-
+  
   // Update the current prop with the new updated data
   this._current = interpolation(1)
-
+  
   return function(transition) {
     return arcPath(interpolation(transition))  
   }
+}
+
+// Event handlers
+const handleMouseOver = (data, index, array) => {
+  d3.select(array[index])
+    .transition('changeSliceFill').duration(300)
+      .attr('fill', '#fff')
+}
+
+const handleMouseOut = (data, index, array) => {
+  d3.select(array[index])
+    .transition('changeSliceFill').duration(300)
+      .attr('fill', color(data.data.name))
+}
+
+const handleClick = data => {
+  const id = data.data.id
+  database.collection('expenses').doc(id).delete()
 }
