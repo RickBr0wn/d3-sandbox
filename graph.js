@@ -1,3 +1,8 @@
+/**
+|--------------------------------------------------
+| Graph configuration
+|--------------------------------------------------
+*/
 // Line Graph dimensions & margin
 const margin = { top: 40, right: 20, bottom: 50, left: 50 }
 const graphWidth = 560 - (margin.right + margin.left)
@@ -27,15 +32,37 @@ const xAxisGroup = graph.append('g')
 const yAxisGroup = graph.append('g')
   .attr('class', 'y-axis')
 
+// d3 line path generator
+const line = d3.line()
+  .x(function(d){ return x(new Date(d.date)) })
+  .y(function(d){ return y(d.distance) })
+
+// Line path elements
+const path = graph.append('path')
+
 /**
 |--------------------------------------------------
 | The update function
 |--------------------------------------------------
 */
 const update = data => {
+  // Filter the data array
+  data = data.filter(item => item.activity == activity)
+  
+  // Sort data based on date object
+  data.sort((a, b) => new Date(a.date) - new Date(b.date))
+
   // Set the scale domains
   x.domain(d3.extent(data, d => new Date(d.date)))
   y.domain([0, d3.max(data, d => d.distance)])
+
+  // Update path data
+  // When using a line, you must pass an array into the data method
+  path.data([data])
+    .attr('fill', 'none')
+    .attr('stroke', '#00bfa5')
+    .attr('stroke-width', 2)
+    .attr('d', line)
 
   // Create circles for objects
   const circles = graph.selectAll('circle')
@@ -58,6 +85,11 @@ const update = data => {
       .attr('cy', d => y(d.distance))
       .attr('fill', '#ccc')
 
+  graph.selectAll('circle')
+    .on('mouseover', handleMouseOver)
+    .on('mouseleave', handleMouseOut)
+    .on('mouseclick', handleClick)
+
   // Create Axis
   const xAxis = d3.axisBottom(x)
     .ticks(4)
@@ -79,13 +111,12 @@ const update = data => {
     .attr('text-anchor', 'end')
 
 }
+
 /**
 |--------------------------------------------------
-| The end of the update function
+| Data and Firestore
 |--------------------------------------------------
 */
-
-// Data and Firestore
 let data = []
 
 db.collection('activities').onSnapshot(res => {
@@ -109,3 +140,27 @@ db.collection('activities').onSnapshot(res => {
   })
   update(data)
 })
+
+/**
+|--------------------------------------------------
+| Event handlers
+|--------------------------------------------------
+*/
+const handleMouseOver = (data, index, array) => {
+  d3.select(array[index])
+    .transition().duration(100)
+    .attr('r', 8)
+    .attr('fill', '#fff')
+  
+}
+
+const handleMouseOut = (data, index, array) => {
+  d3.select(array[index])
+    .transition().duration(100)
+    .attr('r', 4) 
+}
+
+const handleClick = data => {
+  const id = data.data.id
+  database.collection('activities').doc(id).delete()
+}
