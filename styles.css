@@ -14,10 +14,20 @@ button {
   cursor: pointer;
 }
 
-button .active {
-  color: #00bfa5 !important;
+.active {
+  background: #00bfa5 !important;
 }
 
 form span {
   color: #00bfa5 !important;
+}
+
+.x-axis path, .y-axis path,
+.x-axis line, .y-axis line {
+  stroke: #ccc;
+}
+
+.x-axis text, .y-axis text {
+  fill: #ccc;
+  font-size: 14px;
 }
